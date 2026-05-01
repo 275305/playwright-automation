@@ -1,3 +1,13 @@
+import dotenv from 'dotenv';
+
+// ENV LOAD (VERY IMPORTANT - TOP PE HI HONA CHAHIYE)
+dotenv.config({
+  path: `.env.${process.env.ENV || 'qa'}`
+});
+
+// fallback (optional but recommended)
+dotenv.config();
+
 import { defineConfig } from '@playwright/test';
 import { ENV } from './config/env';
 
