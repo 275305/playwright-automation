@@ -3,7 +3,6 @@ pipeline {
 
     parameters {
         string(name: 'TAG', defaultValue: '@smoke', description: 'Run tests by tag')
-        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to run')
     }
 
     environment {
@@ -19,6 +18,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 script {
+                    // BRANCH अब Jenkins UI (Git Parameter) से आएगा
                     def branchName = params.BRANCH.replaceFirst('origin/', '')
 
                     checkout([
