@@ -8,6 +8,10 @@ export default defineConfig({
   testDir: './tests',
   retries: 1,
 
+  // PARALLEL EXECUTION
+  fullyParallel: true,
+  workers: 3, // 3 parallel threads
+
   reporter: [
     ['list'], // console output
     ['html', { outputFolder: 'reports/html', open: 'never' }], // HTML report
