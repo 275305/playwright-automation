@@ -30,9 +30,8 @@ test('@smoke Login Test 2', async ({ page }) => {
 
     await page.goto('/');
     await login.login(data.username, data.password);
-    
-     expect(true).toBe(false);
-    //await expect(page).toHaveURL(/inventory/);
+
+    await expect(page).toHaveURL(/inventory/);
 
 
 });
@@ -44,5 +43,5 @@ test('@smoke Login Test3', async ({ page }) => {
     await page.goto('/');
 
     await loginObj.login(data.username, data.password);
-    await expect(page).toHaveURL(/inventory/);
+    await expect(page).toHaveURL(/wrong-url/);
 });
