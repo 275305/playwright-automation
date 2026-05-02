@@ -15,22 +15,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                script {
-                    // BRANCH अब Jenkins UI (Git Parameter) से आएगा
-                    def branchName = params.BRANCH.replaceFirst('origin/', '')
-
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "*/${branchName}"]],
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/275305/playwright-automation.git'
-                        ]]
-                    ])
-                }
-            }
-        }
+        // REMOVE CHECKOUT STAGE
 
         stage('Install Dependencies') {
             steps {
