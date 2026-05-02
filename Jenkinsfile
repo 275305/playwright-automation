@@ -118,16 +118,7 @@ pipeline {
                     <br>
 
                     <h3> Pie Chart</h3>
-                    <img src="https://quickchart.io/chart?c={
-                        type:'pie',
-                        data:{
-                            labels:['Passed','Failed','Skipped'],
-                            datasets:[{
-                                data:[${passed},${failed},${skipped}]
-                            }]
-                        }
-                    }" width="300"/>
-
+                    <img src="https://quickchart.io/chart?c=%7Btype%3A'pie'%2Cdata%3A%7Blabels%3A%5B'Passed'%2C'Failed'%2C'Skipped'%5D%2Cdatasets%3A%5B%7Bdata%3A%5B${passed}%2C${failed}%2C${skipped}%5D%7D%5D%7D%7D" width="300"/>
                     </body>
                     </html>
                     """
