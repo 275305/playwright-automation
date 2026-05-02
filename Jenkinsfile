@@ -36,7 +36,6 @@ pipeline {
             }
         }
 
-        //  NEW STAGE (SAFE ADDITION)
         stage('Clean Workspace') {
             steps {
                 bat 'rmdir /s /q allure-results || echo no allure folder'
@@ -58,10 +57,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                // Debug listing
                 bat 'npx playwright test --list'
-
-                //  IMPORTANT: build FAIL hona chahiye agar test fail ho
                 bat "npx playwright test --grep \"${params.TAG}\""
             }
         }
@@ -69,11 +65,36 @@ pipeline {
 
     post {
         always {
-            // Debug
             bat 'dir allure-results'
 
-            // Allure report generate hoga chahe fail ho ya pass
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+
+            //  ALWAYS EMAIL (pass + fail)
+            emailext(
+                subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                <h3>Build Report</h3>
+                <b>Status:</b> ${currentBuild.currentResult} <br>
+                <b>Job:</b> ${env.JOB_NAME} <br>
+                <b>Build:</b> ${env.BUILD_NUMBER} <br>
+                <b>URL:</b> ${env.BUILD_URL} <br>
+                <b>Allure Report:</b> ${env.BUILD_URL}allure <br>
+                """,
+                to: 'pradeepmatrix2@gmail.com'
+            )
+        }
+
+        failure {
+            // Extra alert for failure (optional but useful)
+            emailext(
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                <h3 style="color:red;">Build Failed</h3>
+                <b>Check Logs:</b> ${env.BUILD_URL}console <br>
+                <b>Allure Report:</b> ${env.BUILD_URL}allure <br>
+                """,
+                to: 'pradeepmatrix2@gmail.com'
+            )
         }
     }
 }
