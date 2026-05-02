@@ -36,6 +36,14 @@ pipeline {
             }
         }
 
+        //  NEW STAGE (SAFE ADDITION)
+        stage('Clean Workspace') {
+            steps {
+                bat 'rmdir /s /q allure-results || echo no allure folder'
+                bat 'rmdir /s /q test-results || echo no test-results folder'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 bat 'npm install'
@@ -50,7 +58,10 @@ pipeline {
 
         stage('Run Tests') {
             steps {
+                // Debug listing
                 bat 'npx playwright test --list'
+
+                //  IMPORTANT: build FAIL hona chahiye agar test fail ho
                 bat "npx playwright test --grep \"${params.TAG}\""
             }
         }
@@ -58,7 +69,10 @@ pipeline {
 
     post {
         always {
+            // Debug
             bat 'dir allure-results'
+
+            // Allure report generate hoga chahe fail ho ya pass
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
         }
     }
