@@ -28,7 +28,7 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/275305/playwright-automation.git'
                     ]]
-                )
+                ])
             }
         }
 
