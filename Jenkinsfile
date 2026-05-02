@@ -3,6 +3,7 @@ pipeline {
 
     parameters {
         string(name: 'TAG', defaultValue: '@smoke', description: 'Run tests by tag')
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to run')
     }
 
     environment {
@@ -15,7 +16,17 @@ pipeline {
 
     stages {
 
-        // REMOVE CHECKOUT STAGE
+        stage('Checkout Code') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/275305/playwright-automation.git'
+                    ]]
+                ])
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
