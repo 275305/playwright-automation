@@ -18,13 +18,17 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
+                script {
+                    echo "Running on BRANCH: ${params.BRANCH}"
+                }
+
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: "*/${params.BRANCH}"]],
                     userRemoteConfigs: [[
                         url: 'https://github.com/275305/playwright-automation.git'
                     ]]
-                ])
+                )
             }
         }
 
@@ -42,6 +46,10 @@ pipeline {
 
         stage('Run Tests') {
             steps {
+                // DEBUG: कितने tests मिल रहे हैं
+                bat 'npx playwright test --list'
+
+                // Actual execution
                 bat "npx playwright test --grep \"${params.TAG}\""
             }
         }
@@ -49,6 +57,9 @@ pipeline {
 
     post {
         always {
+            // DEBUG: allure results check
+            bat 'dir allure-results'
+
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
         }
     }
