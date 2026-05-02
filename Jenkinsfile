@@ -1,9 +1,13 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     parameters {
         string(name: 'TAG', defaultValue: '@smoke', description: 'Run tests by tag')
-        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to run')
+        string(name: 'BRANCH', defaultValue: 'pradeep/playwright-setup', description: 'Git branch to run')
     }
 
     environment {
@@ -46,10 +50,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                // DEBUG: कितने tests मिल रहे हैं
                 bat 'npx playwright test --list'
-
-                // Actual execution
                 bat "npx playwright test --grep \"${params.TAG}\""
             }
         }
@@ -57,9 +58,7 @@ pipeline {
 
     post {
         always {
-            // DEBUG: allure results check
             bat 'dir allure-results'
-
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
         }
     }
