@@ -1,3 +1,13 @@
+import dotenv from 'dotenv';
+
+// ENV LOAD (VERY IMPORTANT - TOP PE HI HONA CHAHIYE)
+dotenv.config({
+  path: `.env.${process.env.ENV || 'qa'}`
+});
+
+// fallback (optional but recommended)
+dotenv.config();
+
 import { defineConfig } from '@playwright/test';
 import { ENV } from './config/env';
 
@@ -8,19 +18,25 @@ export default defineConfig({
   testDir: './tests',
   retries: 1,
 
+  // PARALLEL EXECUTION
+  fullyParallel: true,
+  workers: 3, // 3 parallel threads
+
   reporter: [
-    ['html', { outputFolder: 'reports/html' }],
-    ['list'],
-    ['allure-playwright']
+    ['list'], // console output
+    ['html', { outputFolder: 'reports/html', open: 'never' }], // HTML report
+    ['allure-playwright'] // Allure report
   ],
-  
 
   use: {
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',
 
-    //  SAFE + COMPANY STANDARD
+    // Dynamic headless (best practice)
+    headless: process.env.CI ? true : false,
+
+    // Base URL
     baseURL: ENV.BASE_URL || 'https://www.saucedemo.com'
   }
 });
