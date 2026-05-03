@@ -67,12 +67,12 @@ pipeline {
         always {
             bat 'dir allure-results'
 
-            //  Existing Allure (unchanged)
+            // Existing Allure (unchanged)
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
 
             script {
 
-                //  SAFE TEST COUNT
+                // SAFE TEST COUNT
                 def passed = 0
                 def failed = 0
                 def skipped = 0
@@ -89,7 +89,7 @@ pipeline {
 
                 def total = passed + failed + skipped
 
-                //  UPDATED EMAIL (ENHANCED BUT SAFE)
+                // UPDATED EMAIL (ENHANCED BUT SAFE)
                 emailext(
                     subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     mimeType: 'text/html',
@@ -109,34 +109,31 @@ pipeline {
 
                     <hr>
 
-                    <h3> Test Summary</h3>
-                    Total: ${total} <br>
-                    Passed: ${passed} <br>
-                    Failed: ${failed} <br>
-                    Skipped: ${skipped} <br>
+                    <h3>Test Summary</h3>
+
+                    <div style="font-size:16px; line-height:1.8;">
+                    <b>Total:</b> <span style="font-weight:bold;">${total}</span><br>
+
+                    <b style="color:green;">Passed:</b> 
+                    <span style="font-weight:bold; font-size:18px; color:green;">${passed}</span><br>
+
+                    <b style="color:red;">Failed:</b> 
+                    <span style="font-weight:bold; font-size:18px; color:red;">${failed}</span><br>
+
+                    <b style="color:orange;">Skipped:</b> 
+                    <span style="font-weight:bold; font-size:18px; color:orange;">${skipped}</span><br>
+                    </div>
 
                     <br>
 
-                    <h3> Pie Chart</h3>
-                    <img src="https://quickchart.io/chart?c=%7Btype%3A'pie'%2Cdata%3A%7Blabels%3A%5B'Passed'%2C'Failed'%2C'Skipped'%5D%2Cdatasets%3A%5B%7Bdata%3A%5B${passed}%2C${failed}%2C${skipped}%5D%7D%5D%7D%7D" width="300"/>
+                    <h3>Pie Chart</h3>
+                    <img src="https://quickchart.io/chart?c={type:'pie',data:{labels:['Passed','Failed','Skipped'],datasets:[{data:[${passed},${failed},${skipped}],backgroundColor:['green','red','orange']} ]}}" width="300"/>
+
                     </body>
                     </html>
                     """
                 )
             }
-        }
-
-        // Existing failure email (UNCHANGED)
-        failure {
-            emailext(
-                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                <h3 style="color:red;">Build Failed</h3>
-                <b>Check Logs:</b> ${env.BUILD_URL}console <br>
-                <b>Allure Report:</b> ${env.BUILD_URL}allure <br>
-                """,
-                to: 'pradeepmatrix2@gmail.com'
-            )
         }
     }
 }
