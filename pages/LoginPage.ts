@@ -1,29 +1,31 @@
-
-import { Page } from '@playwright/test';
-import { loginLocators } from '../locators/loginLocators';
+import { Page, Locator } from '@playwright/test';
 
 export class LoginPage {
 
-    private page: Page;
+    readonly page: Page;
 
     constructor(page: Page) {
         this.page = page;
     }
 
-
-    async enterUsername(username: string) {
-
-        await this.page.fill(loginLocators.username, username);
+    get loginLink(): Locator {
+        return this.page.getByRole('link', { name: /login/i });
     }
 
-    async enterPassword(password: string) {
-
-        await this.page.fill(loginLocators.password, password);
+    get emailInput(): Locator {
+        return this.page.locator('[data-qa="login-email"]');
     }
 
-    async clickLogin(){
+    get passwordInput(): Locator {
 
-        await this.page.click(loginLocators.loginBtn);
+        return this.page.locator('[data-qa="login-password"]');
     }
+
+    get loginButtonHomePage() {
+
+        return this.page.locator('[data-qa="login-button"]');
+    }
+
+
 
 }

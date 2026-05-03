@@ -42,6 +42,9 @@ export default defineConfig({
     headless: process.env.CI ? true : false,
 
     // Base URL
-    baseURL: ENV.BASE_URL || 'https://www.saucedemo.com'
+    baseURL: ENV.BASE_URL || 'https://www.saucedemo.com',
+
+    // ADD THIS (maximize behavior)
+    viewport: { width: 1920, height: 1080 }
   }
 });

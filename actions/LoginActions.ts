@@ -3,22 +3,32 @@ import { Page } from "@playwright/test";
 
 import { LoginPage } from "../pages/LoginPage";
 
-export class LoginActions{
+export class LoginActions {
 
-     private loginPage;
+   private loginPage: LoginPage;
 
-    constructor(page : Page){
+   constructor(page: Page) {
+      this.loginPage = new LoginPage(page);
+   }
 
-       this.loginPage= new LoginPage(page);
-    }
-
-    async login(username : string, password: string){
- 
-    await this.loginPage.enterUsername(username);
-    await this.loginPage.enterPassword(password);
-    await this.loginPage.clickLogin();
+   async navigateToLogin() {
+      await this.loginPage.loginLink.click();
+   }
 
 
-    }
+   async enterEmail(email: string) {
+      await this.loginPage.emailInput.fill(email);
+   }
+
+   async enterPassword(password: string) {
+
+      await this.loginPage.passwordInput.fill(password);
+
+   }
+
+   async clickLoginButtonHomePage() {
+
+      await this.loginPage.loginButtonHomePage.click();
+   }
 
 }
