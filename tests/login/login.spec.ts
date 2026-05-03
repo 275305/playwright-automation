@@ -43,5 +43,5 @@ test('Login Test3', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/');
 
     await loginObj.login(data.username, data.password);
-    await expect(page).toHaveURL(/wrong-url/);
+    await expect(page).toHaveURL(/inventory/);
 });
