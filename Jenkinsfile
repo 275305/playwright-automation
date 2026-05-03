@@ -156,18 +156,5 @@ pipeline {
                 )
             }
         }
-
-        //  KEEP ONLY ONE FAILURE BLOCK (clean)
-        failure {
-            emailext(
-                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                <h3 style="color:red;">Build Failed</h3>
-                <b>Check Logs:</b> ${env.BUILD_URL}console <br>
-                <b>Allure Report:</b> ${env.BUILD_URL}allure <br>
-                """,
-                to: 'pradeepmatrix2@gmail.com'
-            )
-        }
     }
 }
