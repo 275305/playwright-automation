@@ -7,7 +7,6 @@
     "test:headed": "playwright test --headed --config=playwright.config.ts",
     "test:debug": "playwright test --debug --config=playwright.config.ts",
     "report": "playwright show-report reports/html",
-
     "test:qa": "set ENV=qa && playwright test --config=playwright.config.ts"
   },
   "keywords": [],

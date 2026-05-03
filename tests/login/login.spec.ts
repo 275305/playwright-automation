@@ -1,10 +1,11 @@
 
 import { test, expect } from '@playwright/test';
 
-import { LoginActions } from '../../actions/LoginActions';
-import { getLoginData } from '../../test-data/testDataProvider';
+import { LoginActions } from '@actions/LoginActions';
+import { getLoginData } from '@testdata/testDataProvider';
+import '@hooks/testHooks';
 
-test('@smoke Login Test1', async ({ page }) => {
+test('Login Test1', { tag: '@smoke' }, async ({ page }) => {
 
     //debug
     console.log("BASE URL:", test.info().project.use.baseURL);
@@ -17,15 +18,10 @@ test('@smoke Login Test1', async ({ page }) => {
 
     await expect(page).toHaveURL(/inventory/);
 
-    await test.info().attach("screenshot", {
-        body: await page.screenshot(),
-        contentType: "image/png"
-    });
-
 
 });
 
-test('Login Test 2', async ({ page }) => {
+test('Login Test 2', { tag: '@smoke' }, async ({ page }) => {
 
     console.log("BASE URL:", test.info().project.use.baseURL);
 
@@ -34,12 +30,13 @@ test('Login Test 2', async ({ page }) => {
 
     await page.goto('/');
     await login.login(data.username, data.password);
+
     await expect(page).toHaveURL(/inventory/);
 
 
 });
 
-test('Login Test3', async ({ page }) => {
+test('Login Test3', { tag: '@smoke' }, async ({ page }) => {
 
     const data = getLoginData();
     const loginObj = new LoginActions(page);

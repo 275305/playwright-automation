@@ -20,18 +20,23 @@ export default defineConfig({
 
   // PARALLEL EXECUTION
   fullyParallel: true,
-  workers: 3, // 3 parallel threads
+  workers: 3,
 
   reporter: [
-    ['list'], // console output
-    ['html', { outputFolder: 'reports/html', open: 'never' }], // HTML report
-    ['allure-playwright'] // Allure report
+    ['list'],
+    ['html', { outputFolder: 'reports/html', open: 'never' }],
+    ['allure-playwright']
   ],
 
   use: {
+    //  Screenshot on failure
     screenshot: 'only-on-failure',
+
+    //  Video retain on failure
     video: 'retain-on-failure',
-    trace: 'on-first-retry',
+
+    //  UPDATED (your requirement)
+    trace: 'retain-on-failure',
 
     // Dynamic headless (best practice)
     headless: process.env.CI ? true : false,

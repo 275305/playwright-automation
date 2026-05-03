@@ -2,8 +2,33 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@hooks/*": [
+        "hooks/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@pages/*": [
+        "pages/*"
+      ],
+      "@tests/*": [
+        "tests/*"
+      ],
+      "@actions/*": [
+        "actions/*"
+      ],
+      "@testdata/*": [
+        "test-data/*"
+      ]
+    }
   }
 }
