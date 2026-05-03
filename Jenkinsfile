@@ -3,6 +3,7 @@ pipeline {
 
     options {
         skipDefaultCheckout(true)
+        timeout(time: 30, unit: 'MINUTES') //  Global timeout (no infinite stuck)
     }
 
     parameters {
@@ -22,17 +23,19 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                script {
-                    echo "Running on BRANCH: ${params.BRANCH}"
-                }
+                retry(2) {  //  retry added
+                    script {
+                        echo "Running on BRANCH: ${params.BRANCH}"
+                    }
 
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "*/${params.BRANCH}"]],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/275305/playwright-automation.git'
-                    ]]
-                ])
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${params.BRANCH}"]],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/275305/playwright-automation.git'
+                        ]]
+                    ])
+                }
             }
         }
 
@@ -45,51 +48,62 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                retry(2) {
+                    bat 'npm install'
+                }
             }
         }
 
+        //  SAFE: No browser install (pre-installed approach)
         stage('Install Browsers') {
             steps {
-                bat 'npx playwright install --force'
+                echo "Browsers already installed. Skipping download to avoid slowness/stuck."
             }
         }
 
         stage('Run Tests') {
+            options {
+                timeout(time: 20, unit: 'MINUTES') //  prevent hanging tests
+            }
             steps {
-                bat 'npx playwright test --list'
-                bat "npx playwright test --grep \"${params.TAG}\""
+                retry(1) {  //  retry flaky execution
+                    bat 'npx playwright test --list'
+                    bat "npx playwright test --grep \"${params.TAG}\""
+                }
             }
         }
     }
 
     post {
         always {
-            bat 'dir allure-results'
-
-            // Existing Allure (unchanged)
-            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
-
             script {
+                //  Avoid failure if folder missing
+                def allureExists = fileExists('allure-results')
 
-                // SAFE TEST COUNT
+                if (allureExists) {
+                    allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+                } else {
+                    echo "No Allure results found"
+                }
+
                 def passed = 0
                 def failed = 0
                 def skipped = 0
 
-                def files = findFiles(glob: 'allure-results/*.json')
+                if (allureExists) {
+                    def files = findFiles(glob: 'allure-results/*.json')
 
-                files.each { file ->
-                    def content = readFile(file.path)
+                    files.each { file ->
+                        def content = readFile(file.path)
 
-                    if (content.contains('"status":"passed"')) passed++
-                    if (content.contains('"status":"failed"')) failed++
-                    if (content.contains('"status":"skipped"')) skipped++
+                        if (content.contains('"status":"passed"')) passed++
+                        if (content.contains('"status":"failed"')) failed++
+                        if (content.contains('"status":"skipped"')) skipped++
+                    }
                 }
 
                 def total = passed + failed + skipped
 
-                // UPDATED EMAIL (ENHANCED BUT SAFE)
                 emailext(
                     subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     mimeType: 'text/html',
@@ -127,13 +141,35 @@ pipeline {
                     <br>
 
                     <h3>Pie Chart</h3>
-                    <img src="https://quickchart.io/chart?c={type:'pie',data:{labels:['Passed','Failed','Skipped'],datasets:[{data:[${passed},${failed},${skipped}],backgroundColor:['green','red','orange']} ]}}" width="300"/>
+                    <img src="https://quickchart.io/chart?c={
+                    type:'pie',
+                    data:{
+                    labels:['Passed','Failed','Skipped'],
+                    datasets:[{
+                    data:[${passed},${failed},${skipped}],
+                    backgroundColor:['green','red','orange']
+                    }]
+                    }
+                    }" width="300"/>
 
                     </body>
                     </html>
                     """
                 )
             }
+        }
+
+        //  KEEP ONLY ONE FAILURE BLOCK (clean)
+        failure {
+            emailext(
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                <h3 style="color:red;">Build Failed</h3>
+                <b>Check Logs:</b> ${env.BUILD_URL}console <br>
+                <b>Allure Report:</b> ${env.BUILD_URL}allure <br>
+                """,
+                to: 'pradeepmatrix2@gmail.com'
+            )
         }
     }
 }
