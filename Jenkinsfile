@@ -85,21 +85,28 @@ pipeline {
                 } else {
                     echo 'No Allure results found'
                 }
-
                 def passed = 0
                 def failed = 0
                 def skipped = 0
 
-                if (allureExists) {
-                    def files = findFiles(glob: 'allure-results/*-result.json')
+                def uniqueTests = [:]
 
-                    files.each { file ->
-                        def content = readFile(file.path)
+                def files = findFiles(glob: 'allure-results/*-result.json')
 
-                        if (content.contains('"status":"passed"')) passed++
-                        else if (content.contains('"status":"failed"')) failed++
-                        else if (content.contains('"status":"skipped"')) skipped++
-                    }
+                files.each { file ->
+                    def json = readJSON file: file.path
+
+                    def testName = json.fullName   // use this instead of name
+
+                    // latest status override करेगा
+                    uniqueTests[testName] = json.status
+                }
+
+                // Final counting (unique)
+                uniqueTests.each { name, status ->
+                    if (status == 'passed') passed++
+                     else if (status == 'failed') failed++
+                       else if (status == 'skipped') skipped++
                 }
 
                 def total = passed + failed + skipped
