@@ -85,32 +85,23 @@ pipeline {
                 } else {
                     echo 'No Allure results found'
                 }
+                def summaryFile = 'allure-report/widgets/summary.json'
+
                 def passed = 0
                 def failed = 0
                 def skipped = 0
+                def total = 0
 
-                def uniqueTests = [:]
+                if (fileExists(summaryFile)) {
+                    def summary = readJSON file: summaryFile
 
-                def files = findFiles(glob: 'allure-results/*-result.json')
-
-                files.each { file ->
-                    def json = readJSON file: file.path
-
-                    def testName = json.fullName   // use this instead of name
-
-                    // latest status override करेगा
-                    uniqueTests[testName] = json.status
-                }
-
-                // Final counting (unique)
-                uniqueTests.each { name, status ->
-                    if (status == 'passed') passed++
-                     else if (status == 'failed') failed++
-                       else if (status == 'skipped') skipped++
-                }
-
-                def total = passed + failed + skipped
-
+                    passed = summary.statistic.passed
+                    failed = summary.statistic.failed
+                    skipped = summary.statistic.skipped
+                    total = summary.statistic.total
+                  } else {
+                    echo 'Summary file not found'
+                 }
                 emailext(
                     subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     mimeType: 'text/html',
