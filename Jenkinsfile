@@ -38,13 +38,14 @@ pipeline {
                 }
             }
         }
-
         stage('Clean Workspace') {
-            steps {
-                bat 'rmdir /s /q allure-results || echo no allure folder'
-                bat 'rmdir /s /q test-results || echo no test-results folder'
-            }
-        }
+       steps {
+        bat '''
+        if exist allure-results rmdir /s /q allure-results
+        if exist test-results rmdir /s /q test-results
+        '''
+    }
+}
 
         stage('Install Dependencies') {
             steps {
@@ -55,11 +56,11 @@ pipeline {
         }
 
         //  SAFE: No browser install (pre-installed approach)
-        stage('Install Browsers') {
-            steps {
-                echo "Browsers already installed. Skipping download to avoid slowness/stuck."
-            }
-        }
+      stage('Install Browsers') {
+    steps {
+        bat 'npx playwright install chromium'
+    }
+}
 
         stage('Run Tests') {
             options {
