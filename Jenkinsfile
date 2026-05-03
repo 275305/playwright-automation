@@ -91,14 +91,14 @@ pipeline {
                 def skipped = 0
 
                 if (allureExists) {
-                    def files = findFiles(glob: 'allure-results/*.json')
+                    def files = findFiles(glob: 'allure-results/*-result.json')
 
                     files.each { file ->
                         def content = readFile(file.path)
 
                         if (content.contains('"status":"passed"')) passed++
-                        if (content.contains('"status":"failed"')) failed++
-                        if (content.contains('"status":"skipped"')) skipped++
+                        else if (content.contains('"status":"failed"')) failed++
+                        else if (content.contains('"status":"skipped"')) skipped++
                     }
                 }
 
